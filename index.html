@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> 紫微流運助手</title>
+    <title> 紫微流運助手 </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
@@ -30,7 +31,7 @@
         /* 宮位全透明設計，方便對齊底圖 */
         .palace-box {
             background: transparent;
-            border: 1px dashed rgba(148, 163, 184, 0.8); /* 改用虛線邊框，更似對齊網格 */
+            border: 1px dashed rgba(148, 163, 184, 0.8);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -39,7 +40,7 @@
             transition: all 0.2s;
         }
         .palace-box.active-month {
-            background: rgba(99, 102, 241, 0.1); /* 極微弱的底色，不影響對齊 */
+            background: rgba(99, 102, 241, 0.05);
             border: 2px solid #6366F1;
         }
         .palace-box.active-day {
@@ -47,9 +48,20 @@
             background: rgba(245, 158, 11, 0.1);
         }
         
-        /* 加入文字白邊，確保底圖太花時仍然睇得清文字 */
-        .palace-label { font-size: 0.75rem; color: #334155; font-weight: 900; position: absolute; bottom: 2px; right: 4px; text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white, 0 0 5px white; }
-        .current-func { font-size: 0.85rem; color: #EA580C; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white, 0 0 8px white; z-index: 20; }
+        /* 統一的強烈文字白邊，確保底圖太花時仍然睇得清 */
+        .shadow-white-outline {
+            text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white, 0 0 8px white, 0 0 4px white;
+        }
+        
+        .palace-label { font-size: 0.75rem; color: #334155; font-weight: 900; position: absolute; bottom: 2px; right: 4px; }
+        
+        /* 置中並分行的宮位文字容器 */
+        .current-func { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 20; width: 100%;
+        }
+
         .day-marker { 
             position: absolute; top: 2px; left: 2px; 
             background: #F59E0B; color: white; font-size: 10px; 
@@ -68,8 +80,6 @@
             border: 1px dashed rgba(148, 163, 184, 0.5);
             padding: 10px;
             text-align: center;
-            /* 中間大字白邊 */
-            text-shadow: 2px 2px 4px white, -2px -2px 4px white, 2px -2px 4px white, -2px 2px 4px white;
         }
 
         .day-btn {
@@ -94,8 +104,8 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-xl font-black text-slate-800"> 紫微流運助手 </h1>
-                <p class="text-xs text-slate-500 font-bold"> 結合命盤底圖：拖拉對齊，流月四化一眼睇清！ </p>
+                <h1 class="text-xl font-black text-slate-800"> 喵喵紫微流運助手 </h1>
+                <p class="text-xs text-slate-500 font-bold"> 流月與流日雙行同步，底圖自動對齊版！ </p>
             </div>
         </div>
     </header>
@@ -116,9 +126,8 @@
                     </div>
                 </div>
                 
-                <!-- 新增：網格與底圖全方位微調工具 -->
+                <!-- 網格與底圖全方位微調工具 -->
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3 bg-white p-3 rounded-lg shadow-sm border border-slate-200 text-[10px] font-bold text-slate-600">
-                    <!-- 網格控制 -->
                     <div class="flex items-center gap-2">
                         <label class="w-12 shrink-0 text-slate-400">網格比例</label>
                         <input type="range" id="ratioSlider" min="0.6" max="1.5" step="0.01" value="0.95" class="w-full accent-indigo-500">
@@ -127,7 +136,6 @@
                         <label class="w-12 shrink-0 text-slate-400">網格間距</label>
                         <input type="range" id="gapSlider" min="0" max="10" step="1" value="0" class="w-full accent-indigo-500">
                     </div>
-                    <!-- 底圖控制 -->
                     <div class="flex items-center gap-2">
                         <label class="w-12 shrink-0 text-slate-400">底圖縮放</label>
                         <input type="range" id="imgScaleSlider" min="0.1" max="5" step="0.01" value="1" class="w-full accent-emerald-500">
@@ -149,7 +157,7 @@
             <!-- 可拖曳縮放的畫布區 -->
             <div id="gridCanvas" class="relative bg-slate-200 border-4 border-white shadow-md rounded-xl overflow-hidden select-none w-full max-w-[600px] mx-auto">
                 
-                <!-- 背景圖片 (修改了基準點為左上角 origin-top-left，並移除 max-width/height 限制以便精確縮放) -->
+                <!-- 背景圖片 -->
                 <img id="panImage" class="absolute top-0 left-0 hidden pointer-events-none origin-top-left" style="transform: translate(0px, 0px) scale(1); max-width: none; max-height: none;">
                 
                 <!-- 提示文字 -->
@@ -160,25 +168,25 @@
 
                 <!-- 12宮位疊加層 -->
                 <div class="ziwei-grid relative z-10 pointer-events-none" id="ziweiGrid">
-                    <div class="palace-box" id="p-5"><div class="current-func"></div><div class="palace-label"> 巳 </div></div>
-                    <div class="palace-box" id="p-6"><div class="current-func"></div><div class="palace-label"> 午 </div></div>
-                    <div class="palace-box" id="p-7"><div class="current-func"></div><div class="palace-label"> 未 </div></div>
-                    <div class="palace-box" id="p-8"><div class="current-func"></div><div class="palace-label"> 申 </div></div>
-                    <div class="palace-box" id="p-4"><div class="current-func"></div><div class="palace-label"> 辰 </div></div>
+                    <div class="palace-box" id="p-5"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 巳 </div></div>
+                    <div class="palace-box" id="p-6"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 午 </div></div>
+                    <div class="palace-box" id="p-7"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 未 </div></div>
+                    <div class="palace-box" id="p-8"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 申 </div></div>
+                    <div class="palace-box" id="p-4"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 辰 </div></div>
                     
-                    <div class="center-box">
+                    <div class="center-box shadow-white-outline">
                         <div id="displayMonthName" class="text-xl font-black text-indigo-600 drop-shadow-sm"> 正月 </div>
                         <div id="displayDayNum" class="text-4xl font-black text-amber-500 drop-shadow-sm">01</div>
-                        <div class="text-[10px] text-slate-500 font-bold mt-1 bg-white/50 px-2 py-0.5 rounded-full"> 流日命宮 </div>
+                        <div class="text-[10px] text-slate-600 font-bold mt-1 bg-white/70 px-2 py-0.5 rounded-full border border-slate-200"> 流日命宮 </div>
                     </div>
                     
-                    <div class="palace-box" id="p-9"><div class="current-func"></div><div class="palace-label"> 酉 </div></div>
-                    <div class="palace-box" id="p-3"><div class="current-func"></div><div class="palace-label"> 卯 </div></div>
-                    <div class="palace-box" id="p-10"><div class="current-func"></div><div class="palace-label"> 戌 </div></div>
-                    <div class="palace-box" id="p-2"><div class="current-func"></div><div class="palace-label"> 寅 </div></div>
-                    <div class="palace-box" id="p-1"><div class="current-func"></div><div class="palace-label"> 丑 </div></div>
-                    <div class="palace-box" id="p-0"><div class="current-func"></div><div class="palace-label"> 子 </div></div>
-                    <div class="palace-box" id="p-11"><div class="current-func"></div><div class="palace-label"> 亥 </div></div>
+                    <div class="palace-box" id="p-9"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 酉 </div></div>
+                    <div class="palace-box" id="p-3"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 卯 </div></div>
+                    <div class="palace-box" id="p-10"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 戌 </div></div>
+                    <div class="palace-box" id="p-2"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 寅 </div></div>
+                    <div class="palace-box" id="p-1"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 丑 </div></div>
+                    <div class="palace-box" id="p-0"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 子 </div></div>
+                    <div class="palace-box" id="p-11"><div class="current-func"></div><div class="palace-label shadow-white-outline"> 亥 </div></div>
                 </div>
             </div>
             <p class="text-[11px] text-slate-400 text-center font-bold"> 💡 提示：在盤面上使用「滑鼠滾輪縮放」及「按住拖曳」即可對齊底圖宮位 </p>
@@ -187,7 +195,7 @@
         <!-- 右側：計算與條件選擇 -->
         <div class="lg:col-span-5 flex flex-col gap-4">
             
-            <!-- 流月四化顯示區 (已移至最上方) -->
+            <!-- 流月四化顯示區 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
                 <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2">
                     <div class="flex items-center gap-2">
@@ -256,9 +264,9 @@
             <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 flex gap-3 shadow-inner">
                 <div class="text-2xl"> 🐱 </div>
                 <div class="text-xs text-amber-900 leading-relaxed">
-                    <b> </b><br>
-                    而家你可以上傳自己習慣睇開嘅命盤做底圖！<br>
-                    方盤呈半透明，底圖對齊好之後，<b> 藍色框 </b> 代表流月命宮，<b> 金色框 </b> 代表流日命宮。配合右上角自動算出嘅「流月四化」，斷事更加準確快捷！
+                    <b> 嘟嘟老師教室： </b><br>
+                    而家格子入面分開咗兩行字：<br>
+                    上面深色係「流月」嘅宮位，下面<span class="text-[#EA580C] font-bold">橙色</span>係「流日」嘅宮位！當你㩒下面揀流日嗰陣，橙色嘅字就會成個盤順時針跟住你一齊轉，一眼睇晒！
                 </div>
             </div>
             
@@ -298,7 +306,7 @@
         const gapSlider = document.getElementById('gapSlider');
         const ziweiGrid = document.getElementById('ziweiGrid');
 
-        // --- 新增：底圖微調推桿 ---
+        // --- 底圖微調推桿 ---
         const imgScaleSlider = document.getElementById('imgScaleSlider');
         const imgXSlider = document.getElementById('imgXSlider');
         const imgYSlider = document.getElementById('imgYSlider');
@@ -320,17 +328,12 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (ev) => {
-                // 當圖片載入完成時，執行自動對齊與縮放
                 panImage.onload = () => {
                     const canvasWidth = gridCanvas.offsetWidth;
-                    // 自動縮放到與排盤外框寬度完全一致
                     scale = canvasWidth / panImage.naturalWidth;
-                    // 自動靠齊左上角
-                    tx = 0; 
-                    ty = 0;
+                    tx = 0; ty = 0;
                     updateTransform();
                 };
-                
                 panImage.src = ev.target.result;
                 panImage.classList.remove('hidden');
                 document.getElementById('dropText').classList.add('hidden');
@@ -339,10 +342,7 @@
         };
 
         function updateTransform() { 
-            // 改用直接平移，因為 origin 已經設定為 top-left
             panImage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; 
-            
-            // 同步更新推桿的數值，確保滑鼠拖曳時推桿會跟住行
             imgScaleSlider.value = scale;
             imgXSlider.value = tx;
             imgYSlider.value = ty;
@@ -350,32 +350,26 @@
 
         function resetTransform() {
             if (!panImage.src || panImage.classList.contains('hidden')) return;
-            // 恢復到自動適應闊度並靠左上角的狀態
             const canvasWidth = gridCanvas.offsetWidth;
             scale = canvasWidth / panImage.naturalWidth || 1;
-            tx = 0; 
-            ty = 0;
+            tx = 0; ty = 0;
             updateTransform();
         }
-
         resetImgBtn.onclick = resetTransform;
 
         // 電腦滑鼠事件
         gridCanvas.onwheel = (e) => { 
             e.preventDefault(); 
             scale *= (e.deltaY > 0 ? 0.9 : 1.1); 
-            scale = Math.min(Math.max(0.1, scale), 5); // 限制縮放比例
+            scale = Math.min(Math.max(0.1, scale), 5); 
             updateTransform(); 
         };
         gridCanvas.onmousedown = (e) => { 
-            isDown = true; 
-            startX = e.clientX - tx; 
-            startY = e.clientY - ty; 
+            isDown = true; startX = e.clientX - tx; startY = e.clientY - ty; 
         };
         window.addEventListener('mousemove', (e) => { 
             if (!isDown) return; 
-            tx = e.clientX - startX; 
-            ty = e.clientY - startY; 
+            tx = e.clientX - startX; ty = e.clientY - startY; 
             updateTransform(); 
         });
         window.addEventListener('mouseup', () => isDown = false);
@@ -390,7 +384,7 @@
         });
         window.addEventListener('touchmove', (e) => {
             if(!isDown || e.touches.length !== 1) return;
-            e.preventDefault(); // 避免手機滑動頁面
+            e.preventDefault(); 
             tx = e.touches[0].clientX - startX;
             ty = e.touches[0].clientY - startY;
             updateTransform();
@@ -415,7 +409,7 @@
             btn.onclick = () => {
                 currentDay = i;
                 updateDaySelection();
-                renderPalaces();
+                renderPalaces(); // 每次點擊流日都會重新計算整個盤面
             };
             dayPicker.appendChild(btn);
         }
@@ -436,7 +430,6 @@
             const qYear = parseInt(document.getElementById('queryYear').value);
             const selMonth = parseInt(monthSelect.value);
             
-            // 計算流年天干與地支
             let yearStemIdx = (qYear - 4) % 10;
             if (yearStemIdx < 0) yearStemIdx += 10;
             
@@ -454,7 +447,7 @@
             // 計算流月天干 (五虎遁法)
             const firstMonthStemIdx = (yearStemIdx % 5 * 2 + 2) % 10;
             const curMonthStemIdx = (firstMonthStemIdx + (selMonth - 1)) % 10;
-            const curMonthZodIdx = (2 + (selMonth - 1)) % 12; // 正月為寅(2)
+            const curMonthZodIdx = (2 + (selMonth - 1)) % 12; 
 
             const monthGanzhi = `${stems[curMonthStemIdx]}${zodiacNames[curMonthZodIdx]}`;
             document.getElementById('monthStemDisplay').innerText = `流月天干：${monthGanzhi}`;
@@ -490,35 +483,49 @@
             // 3. 流日命宮
             let curDayLifeIdx = (curMonthLifeIdx + (currentDay - 1)) % 12;
 
-            // 清理 UI
-            document.querySelectorAll('.current-func').forEach(el => el.innerText = '');
+            // 清理所有 UI 狀態
             document.querySelectorAll('.palace-box').forEach(el => {
                 el.classList.remove('active-month', 'active-day');
                 const oldMarker = el.querySelector('.day-marker');
                 if (oldMarker) oldMarker.remove();
+                el.querySelector('.current-func').innerHTML = '';
             });
 
-            // 標示 12 宮
-            for(let i=0; i<12; i++) {
-                let targetZodiac = (curMonthLifeIdx - i) % 12;
-                if (targetZodiac < 0) targetZodiac += 12;
+            // 重新標示 12 宮 (流月與流日雙行同步)
+            for(let z = 0; z < 12; z++) {
                 
-                const box = document.getElementById(`p-${targetZodiac}`);
-                if (box) {
-                    box.querySelector('.current-func').innerText = palaceOrder[i].replace("宮", "");
-                    if (i === 0) box.classList.add('active-month');
-                }
-            }
+                // 計算這格 (z) 在「流月」是甚麼宮
+                let m = (curMonthLifeIdx - z) % 12;
+                if (m < 0) m += 12;
+                
+                // 計算這格 (z) 在「流日」是甚麼宮
+                let d = (curDayLifeIdx - z) % 12;
+                if (d < 0) d += 12;
 
-            // 標示流日
-            const dayBox = document.getElementById(`p-${curDayLifeIdx}`);
-            if (dayBox) {
-                dayBox.classList.add('active-day');
-                const marker = document.createElement('div');
-                marker.className = 'day-marker';
-                marker.innerText = `初${currentDay}`;
-                if (currentDay > 10) marker.innerText = `${currentDay}日`;
-                dayBox.appendChild(marker);
+                let monthName = palaceOrder[m].replace("宮", "");
+                let dayName = palaceOrder[d].replace("宮", "");
+
+                const box = document.getElementById(`p-${z}`);
+                if (box) {
+                    // 分為兩行寫入：上月(深灰) 下日(亮橙)
+                    box.querySelector('.current-func').innerHTML = `
+                        <div class="text-[11px] text-slate-600 font-bold leading-tight shadow-white-outline mb-0.5">月${monthName}</div>
+                        <div class="text-[15px] text-[#EA580C] font-black leading-tight shadow-white-outline">日${dayName}</div>
+                    `;
+
+                    // 標示流月命宮框
+                    if (m === 0) box.classList.add('active-month');
+                    
+                    // 標示流日命宮框及標籤
+                    if (d === 0) {
+                        box.classList.add('active-day');
+                        const marker = document.createElement('div');
+                        marker.className = 'day-marker';
+                        marker.innerText = `初${currentDay}`;
+                        if (currentDay > 10) marker.innerText = `${currentDay}日`;
+                        box.appendChild(marker);
+                    }
+                }
             }
         }
 
